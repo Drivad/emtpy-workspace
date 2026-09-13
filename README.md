@@ -83,6 +83,104 @@ would sharpen the answer. It's intentionally not a generic wellness pep talk —
 if you want it to run automatically every morning, put `curl -X POST
 http://localhost:3000/api/insights/generate` in a cron job or systemd timer.
 
+## Deploying to a free Google Cloud VM
+
+Google's "Always Free" tier includes one small `e2-micro` server, permanently,
+at no cost — as long as it's in `us-west1`, `us-central1`, or `us-east1`. This
+app comfortably fits on one for a single person's use.
+
+**This deployment puts the app on the open internet on a raw IP:port, with no
+login of its own besides the HTTP Basic Auth this project adds.** Set
+`DASHBOARD_USERNAME`/`DASHBOARD_PASSWORD` in `.env` — without them, anyone who
+finds the address can see your health data and spend your Anthropic API
+credit. Every page and API route is gated by it (see `src/proxy.ts`); local
+`npm run dev` stays open since those variables are normally unset there.
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com), sign
+   in, create a project (or use an existing one) and enable billing — required
+   even for the free tier, but you won't be charged while inside the free
+   limits. Open **Cloud Shell** (the `>_` icon, top right) — it's a free
+   browser terminal with `gcloud` already signed in as you, so nothing to
+   install locally.
+
+2. In Cloud Shell, create the VM (swap the zone for `us-west1-a` or
+   `us-east1-b` if you prefer):
+
+   ```bash
+   gcloud compute instances create health-strategy \
+     --zone=us-central1-a \
+     --machine-type=e2-micro \
+     --image-family=debian-12 \
+     --image-project=debian-cloud \
+     --boot-disk-size=30GB \
+     --tags=health-strategy
+   ```
+
+3. Open the port the app will listen on:
+
+   ```bash
+   gcloud compute firewall-rules create allow-health-strategy \
+     --allow=tcp:3000 \
+     --target-tags=health-strategy \
+     --source-ranges=0.0.0.0/0
+   ```
+
+4. SSH into it (still from Cloud Shell):
+
+   ```bash
+   gcloud compute ssh health-strategy --zone=us-central1-a
+   ```
+
+5. Now on the VM itself — an `e2-micro` only has 1GB RAM, so add swap first or
+   the production build can run out of memory:
+
+   ```bash
+   sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+   sudo mkswap /swapfile && sudo swapon /swapfile
+   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+   sudo apt-get install -y nodejs git
+
+   git clone https://github.com/Drivad/health-strategy
+   cd health-strategy
+   npm install
+   cp .env.example .env
+   nano .env   # fill in ANTHROPIC_API_KEY, DASHBOARD_USERNAME, DASHBOARD_PASSWORD
+               # (and GARMIN_EMAIL/PASSWORD if you want that sync too)
+
+   npm run build
+   sudo npm install -g pm2
+   pm2 start npm --name health-strategy -- start
+   pm2 startup   # copy-paste the command it prints, then:
+   pm2 save
+   ```
+
+   `pm2` keeps it running in the background permanently — after `pm2 save`
+   the app restarts automatically even if the VM itself reboots.
+
+6. Find the VM's external address and visit it:
+
+   ```bash
+   gcloud compute instances describe health-strategy --zone=us-central1-a \
+     --format='get(networkInterfaces[0].accessConfigs[0].natIP)'
+   ```
+
+   Open `http://THAT_IP:3000` — your browser will prompt for the username and
+   password you set in step 5.
+
+The external IP normally stays put across restarts, but isn't guaranteed to.
+To pin it permanently (still free while attached to a running instance):
+
+```bash
+gcloud compute addresses create health-strategy-ip --region=us-central1
+gcloud compute instances delete-access-config health-strategy --zone=us-central1-a --access-config-name="external-nat"
+gcloud compute instances add-access-config health-strategy --zone=us-central1-a --access-config-name="external-nat" --address=health-strategy-ip
+```
+
+**To ship a code change later:** SSH back in, `cd health-strategy`, `git pull`,
+`npm install` (if dependencies changed), `npm run build`, `pm2 restart health-strategy`.
+
 ## Project layout
 
 - `src/lib/db.ts`, `src/lib/queries.ts` — SQLite schema and data access
