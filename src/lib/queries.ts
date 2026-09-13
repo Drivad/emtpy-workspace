@@ -138,6 +138,10 @@ export function getDailyAggregates(startDate: string, endDate: string): DailyAgg
       workoutsCount: 0,
       workoutMinutes: null,
       fastingHours: null,
+      dietaryEnergyKcal: null,
+      dietaryProteinG: null,
+      dietaryCarbsG: null,
+      dietaryFatG: null,
     });
   }
 
@@ -165,6 +169,18 @@ export function getDailyAggregates(startDate: string, endDate: string): DailyAgg
         break;
       case "body_battery_avg":
         agg.bodyBatteryAvg = row.avgValue;
+        break;
+      case "dietary_energy_kcal":
+        agg.dietaryEnergyKcal = row.sumValue;
+        break;
+      case "dietary_protein_g":
+        agg.dietaryProteinG = row.sumValue;
+        break;
+      case "dietary_carbs_g":
+        agg.dietaryCarbsG = row.sumValue;
+        break;
+      case "dietary_fat_g":
+        agg.dietaryFatG = row.sumValue;
         break;
     }
   }

@@ -129,7 +129,7 @@ export default function Home() {
       <header>
         <h1 className="text-xl font-semibold text-[var(--text-primary)]">Health Strategy</h1>
         <p className="text-sm text-[var(--text-secondary)]">
-          Apple Health, Garmin, Fastic and Trainiac in one place, with a daily AI briefing instead of guesswork.
+          Apple Health, Garmin, MyFitnessPal and Trainiac in one place, with a daily AI briefing instead of guesswork.
         </p>
       </header>
 
@@ -232,6 +232,14 @@ export default function Home() {
           color="var(--series-4)"
           unit="h"
           decimals={1}
+        />
+        <TrendChart
+          title="Calories in (MyFitnessPal)"
+          data={aggregates}
+          dataKey="dietaryEnergyKcal"
+          color="var(--series-5)"
+          unit="kcal"
+          kind="bar"
         />
       </section>
 

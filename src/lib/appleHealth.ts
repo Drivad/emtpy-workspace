@@ -45,6 +45,14 @@ function quantityToSample(attrs: Record<string, string>) {
       return { metric: "hrv_ms" as const, value: rawValue, unit: "ms", startTime, endTime, sourceApp };
     case "HKQuantityTypeIdentifierVO2Max":
       return { metric: "vo2max" as const, value: rawValue, unit: attrs.unit, startTime, endTime, sourceApp };
+    case "HKQuantityTypeIdentifierDietaryEnergyConsumed":
+      return { metric: "dietary_energy_kcal" as const, value: rawValue, unit: "kcal", startTime, endTime, sourceApp };
+    case "HKQuantityTypeIdentifierDietaryProtein":
+      return { metric: "dietary_protein_g" as const, value: rawValue, unit: "g", startTime, endTime, sourceApp };
+    case "HKQuantityTypeIdentifierDietaryCarbohydrates":
+      return { metric: "dietary_carbs_g" as const, value: rawValue, unit: "g", startTime, endTime, sourceApp };
+    case "HKQuantityTypeIdentifierDietaryFatTotal":
+      return { metric: "dietary_fat_g" as const, value: rawValue, unit: "g", startTime, endTime, sourceApp };
     default:
       return null;
   }

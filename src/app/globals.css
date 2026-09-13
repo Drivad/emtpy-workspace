@@ -16,6 +16,7 @@
   --series-2: #eb6834; /* orange - active energy */
   --series-3: #1baf7a; /* aqua - steps */
   --series-4: #4a3aa7; /* violet - sleep */
+  --series-5: #eda100; /* yellow - calories in */
 
   --status-good: #0ca30c;
   --status-warning: #fab219;
@@ -45,6 +46,7 @@
     --series-2: #d95926;
     --series-3: #199e70;
     --series-4: #9085e9;
+    --series-5: #c98500;
 
     --status-good: #0ca30c;
     --status-warning: #fab219;

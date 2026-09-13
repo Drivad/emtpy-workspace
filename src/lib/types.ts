@@ -6,7 +6,11 @@ export type MetricName =
   | "hrv_ms"
   | "stress_avg"
   | "body_battery_avg"
-  | "vo2max";
+  | "vo2max"
+  | "dietary_energy_kcal"
+  | "dietary_protein_g"
+  | "dietary_carbs_g"
+  | "dietary_fat_g";
 
 export type SourceName = "AppleHealth" | "Garmin" | "Manual";
 
@@ -63,6 +67,10 @@ export interface DailyAggregate {
   workoutsCount: number;
   workoutMinutes: number | null;
   fastingHours: number | null;
+  dietaryEnergyKcal: number | null;
+  dietaryProteinG: number | null;
+  dietaryCarbsG: number | null;
+  dietaryFatG: number | null;
 }
 
 export interface SyncState {

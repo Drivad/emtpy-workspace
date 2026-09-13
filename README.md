@@ -1,26 +1,28 @@
 # Health Strategy
 
 A self-hosted web app that pulls your health data into one place — Apple Health
-(which is where Fastic, Trainiac and Garmin's own app usually end up syncing to
-on iOS), plus a direct Garmin Connect sync — and asks Claude for a daily,
-specific briefing instead of generic advice.
+(which is where MyFitnessPal, Trainiac and Garmin's own app usually end up
+syncing to on iOS), plus a direct Garmin Connect sync — and asks Claude for a
+daily, specific briefing instead of generic advice.
 
 ## Why it's built this way
 
-None of Fastic, Trainiac or Garmin have a public API for personal use, so this
-app leans on the one place iOS health apps already tend to converge:
+None of MyFitnessPal, Trainiac or Garmin have a public API for personal use,
+so this app leans on the one place iOS health apps already tend to converge:
 
-- **Apple Health** is the aggregation point for Fastic, Trainiac and Garmin
-  Connect *if* you've enabled "Sync to Apple Health" in each app's settings.
-  You export it from the Health app and upload the file here.
+- **Apple Health** is the aggregation point for MyFitnessPal, Trainiac and
+  Garmin Connect *if* you've enabled "Sync to Apple Health" in each app's
+  settings. MyFitnessPal specifically syncs calories consumed and macros
+  (protein/carbs/fat) this way — enable it under MyFitnessPal → More → Apps →
+  Apple Health. You export it from the Health app and upload the file here.
 - **Garmin Connect** is also synced directly, since Apple Health doesn't carry
   everything Garmin tracks (HRV, stress, body battery). This uses the
   well-known unofficial `garmin-connect` npm package — Garmin has no personal-use
   official API, so this is what nearly every personal Garmin project does. It's
   not sanctioned by Garmin and could break if they change their internal API.
-- **Fasting windows have no dedicated Apple Health data type**, so Fastic
-  sessions likely won't show up automatically even with sync enabled — log
-  them with the manual entry form until/unless that changes.
+- **Fasting windows have no dedicated Apple Health data type**, so if you're
+  doing any time-restricted eating alongside MyFitnessPal's calorie tracking,
+  log those windows with the manual entry form.
 
 ## Setup
 
@@ -53,7 +55,7 @@ host like Railway/Fly.io with a persistent volume for `./data`.
 
 ## Getting your data in
 
-**Apple Health export** (covers Trainiac/Fastic/Garmin data that syncs to
+**Apple Health export** (covers Trainiac/MyFitnessPal/Garmin data that syncs to
 Health, plus Apple Watch steps, active energy, sleep and workouts):
 
 1. On your iPhone: Health app → tap your profile picture → **Export All Health
@@ -94,10 +96,9 @@ http://localhost:3000/api/insights/generate` in a cron job or systemd timer.
 
 ## Known limitations / next steps
 
-- No fasting data type in HealthKit means Fastic fasting windows need manual
-  logging unless Fastic starts writing something HealthKit can carry (check
-  its own export/sync settings — some fasting apps log fasting as mindful
-  minutes or a workout, which would show up automatically if so).
+- No fasting data type in HealthKit means any time-restricted eating windows
+  need manual logging — MyFitnessPal doesn't track fasting at all, it's purely
+  calorie/macro logging.
 - Weight-loss-plateau analysis is only as good as what's synced — if a source
   isn't feeding data in, the insight will call that out as a gap rather than
   guess.
